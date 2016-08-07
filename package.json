@@ -1,0 +1,20 @@
+{
+  "name": "json_server",
+  "version": "1.0.0",
+  "description": "a json-rpc server",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "victor stone",
+  "license": "MIT",
+  "dependencies": {
+    "cors": "^2.7.1",
+    "jsonrpc-node": "^1.2.93",
+    "mongodb": "^2.2.5"
+  },
+  "devDependencies": {
+    "body-parser": "^1.15.2",
+    "express": "^4.14.0"
+  }
+}
