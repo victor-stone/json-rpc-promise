@@ -1,0 +1,54 @@
+<html>
+<head>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
+<script type="text/javascript" src="jsonrpc2php.client.js"></script>
+<script>
+
+function log(msg) {
+  var prev = $('#results').html();
+  $('#results').html( msg + '<br />' + prev);
+}
+
+var rpc = new jsonrpcphp('http://localhost:3000', function() {
+  log( 'rpc ready' );
+});
+
+function result(r) {
+  for( var k in r ) {
+    log( k + ': ' + r[k] );
+  }
+}
+function results(rr) {
+  if( Array.isArray(rr.result) ) {
+    rr.result.forEach( result );
+  } else {
+    result(rr.result);
+  }
+}
+
+function list() {
+  rpc.volunteers.list( {}, results );
+}
+
+function insert() {
+  rpc.volunteers.insert( { name: 'sally', email: 'sally@peanuts.com'}, results );
+}
+
+function insertNotes() {
+  rpc.auditNotes.insert( { from: 'sally', to: 'victor', content: 'can we meet up at the docs at 8pm?', timeStamp: new Date() + ''});
+  rpc.auditNotes.insert( { from: 'victor', to: 'sally', content: 'lets go for pizza instead',          timeStamp: new Date() + ''});
+  rpc.auditNotes.insert( { from: 'sally', to: 'victor', content: 'ok', timeStamp: new Date() + ''}, results);
+}
+
+function listNotes() {
+  rpc.auditNotes.listFor({ $or: [{from:'victor'},{to:'victor'}] }, results );
+}
+</script>
+</head>
+<body>
+<h2>Testing rpc</h2>
+<button onclick="list()">list</button> <button onclick="insert()">insert</button> <button onclick="insertNotes()">insert note</button>
+ <button onclick="listNotes()">list notes</button>
+<pre id="results"></pre>
+</body>
+</html>
