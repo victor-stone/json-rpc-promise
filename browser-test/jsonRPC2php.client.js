@@ -1,4 +1,12 @@
+'use strict';
+/* globals $ */
+/* eslint quotes:"off" */
+/* eslint eqeqeq:"off" */
+
 /*
+
+MODIFIED BY Victor
+
           COPYRIGHT
 
 Copyright 2012 Stijn Van Campenhout <stijn.vancampenhout@gmail.com>
@@ -20,9 +28,7 @@ along with JSON-RPC2PHP; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-function myAlert(msg) {
-  $('#results').html(msg);
-}
+
 /**
  * jsonrpc2php client for javascript
  * for use with http://github.com/subutux/json-rpc2php/
@@ -30,11 +36,14 @@ function myAlert(msg) {
  * @version 1.2
  */
  function jsonrpcphp(host,mainCallback,options){
-  defaultOptions = {
-    "ignoreErrors" : [],
-    "username" : "",
-    "password" : ""
-  }
+
+  const defaultOptions = {
+    ignoreErrors : [],
+    username:      '',
+    password:      '',
+    targetAPIObj:  this
+  };
+
   this.o = $.extend({},defaultOptions,options);
   var that = this;
   this.host = host;
@@ -42,10 +51,11 @@ function myAlert(msg) {
   this.currId = 0;
   this.err = function (code,msg,fullmsg){
   if ($.inArray(code,this.o.ignoreErrors) < 0){
-      myAlert(code + "::" + msg + "::" + fullmsg);
+      throw(code + "::" + msg + "::" + fullmsg);
       //console.log(msg);
     }
-  }
+  };
+
   /**
    * Main rpc function, wrapper for $.ajax();
    *
@@ -54,16 +64,16 @@ function myAlert(msg) {
    * @param function callback
    */
   this.__rpc__ = function(method,params,callback){
-    request = {};
+    const request = {};
     request.jsonrpc = "2.0";
     request.method = method;
-    if (typeof params == "string"){
+    if (typeof params === "string"){
       request.params = new Array();
       request.params[0] = params;
     } else {
       request.params = params;
     }
-    if (typeof(callback) != "undefined"){
+    if (typeof(callback) !== "undefined"){
       this.currId += 1;
       request.id = this.currId;
       // Add to the queue
@@ -72,27 +82,25 @@ function myAlert(msg) {
 
     function setHeaders(xhr){
       if (typeof(that.o['sessionId']) != "undefined"){
-        xhr.setRequestHeader("x-RPC-Auth-Session",that.o['sessionId'])
+        xhr.setRequestHeader("x-RPC-Auth-Session",that.o['sessionId']);
       } else if (that.o['username'] != "" && that.o['password'] != ""){
-        xhr.setRequestHeader("x-RPC-Auth-Username",that.o['username'])
-        xhr.setRequestHeader("x-RPC-Auth-Password",that.o['password'])
+        xhr.setRequestHeader("x-RPC-Auth-Username",that.o['username']);
+        xhr.setRequestHeader("x-RPC-Auth-Password",that.o['password']);
       }
     }
+    
     $.ajax({
       url:host,
       type:"POST",
       data:JSON.stringify(request),
       contentType:"application/json",
       dataType:"json",
+      //xhrFields: { withCredentials: true },
       beforeSend: function(xhr){
         setHeaders(xhr);
       },
       error: function(jqXHR,textStatus){
-        //Don't throw an error if we don't expect any results
-        if (typeof(callback) != "undefined"){
-          myAlert('error:' + textStatus);
-          return false;
-        }
+          throw('error:' + textStatus);
       },
       success: function(r,textStatus,XMLHttpRequest){
         var sessionId = XMLHttpRequest.getResponseHeader("x-RPC-Auth-Session");
@@ -100,18 +108,13 @@ function myAlert(msg) {
           that.o['sessionId'] = sessionId;
         }
       if (r.error != null){
-        that.err(r.error.code,r.error.message,r.error.data.fullMessage)
-        /*alert(r.error.code + "::" + r.error.message + "::" + r.error.data.fullMessage);
-        console.log(r.error);*/
+        that.err(r.error.code,r.error.message,r.error.data.fullMessage); 
         return false;
       } else if (typeof r.id != "undefined"){
         if (r.id in that.q){
-          // execute the callback saved in the Queue.
           that.q[r.id](r);
-          // unset the callback.
           delete that.q[r.id];
         } else {
-          //alert("jsonrpc2Error::NO_ID_MATCH::Given Id and recieved Id does not match");
           that.err("jsonrpc2Error","NO_CALLBACK","Callback for id \'" + r.id + "\' not found.");
           return false;
         }
@@ -121,33 +124,42 @@ function myAlert(msg) {
      }
     });
 
-  }
+  };
+
   /**
    * Build the function to execute a this.rpc call for the given object method
    *
    * @param string method
    * @return function
    */
-  this.buildFunction = function(method) {
-    return function (params,callback){
-      that.__rpc__(method,params,callback);
-    }
-  }
+  this.buildPromise = function(method) {
+    return function (...params){
+      return new Promise( function(resolve,reject) {
+        try {
+          that.__rpc__(method,params, rpcObj => resolve(rpcObj.result));
+        } catch(e) {
+          reject(e);
+        }
+      });
+      
+    };
+  };
   
   /**
-   * Build object for each method available like so:
-   * rpc.[extension].[method](params,callback);
+   * Build promise for each method available like so:
+   * rpc[extension][method](...params).then( )
    *
    */
-    this.__rpc__('rpc.listMethods','',function(system){
-      console.log(system);
+    this.__rpc__('rpc.listMethods',null,function(system){
       $.each(system.result,function(ext,methods){
-        that[ext] = {};
-        for (method in methods){
-          m = system.result[ext][method];
-          that[ext][m] = that.buildFunction(ext + "." + m);
-        };
+        that.o.targetAPIObj[ext] = {};
+        for (var method in methods){
+          var m = system.result[ext][method];
+          that.o.targetAPIObj[ext][m] = that.buildPromise(ext + "." + m);
+        }
       });
       mainCallback();
     });
 }
+
+!window && (module.exports = jsonrpcphp);

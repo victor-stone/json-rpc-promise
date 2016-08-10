@@ -1,7 +1,7 @@
 <html>
 <head>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
-<script type="text/javascript" src="jsonrpc2php.client.js"></script>
+<script type="text/javascript" src="jsonrpc2php.x.client.js"></script>
 <script>
 
 function log(msg) {
@@ -19,29 +19,29 @@ function result(r) {
   }
 }
 function results(rr) {
-  if( Array.isArray(rr.result) ) {
-    rr.result.forEach( result );
+  if( Array.isArray(rr) ) {
+    rr.forEach( result );
   } else {
-    result(rr.result);
+    result(rr);
   }
 }
 
 function list() {
-  rpc.volunteers.list( {}, results );
+  rpc.volunteers.list( {} ).then( results );
 }
 
 function insert() {
-  rpc.volunteers.insert( { name: 'sally', email: 'sally@peanuts.com'}, results );
+  rpc.volunteers.insert( { name: 'sally', email: 'sally@peanuts.com'} ).then( results );
 }
 
 function insertNotes() {
   rpc.auditNotes.insert( { from: 'sally', to: 'victor', content: 'can we meet up at the docs at 8pm?', timeStamp: new Date() + ''});
   rpc.auditNotes.insert( { from: 'victor', to: 'sally', content: 'lets go for pizza instead',          timeStamp: new Date() + ''});
-  rpc.auditNotes.insert( { from: 'sally', to: 'victor', content: 'ok', timeStamp: new Date() + ''}, results);
+  rpc.auditNotes.insert( { from: 'sally', to: 'victor', content: 'ok', timeStamp: new Date() + ''}).then( results );
 }
 
 function listNotes() {
-  rpc.auditNotes.listFor({ $or: [{from:'victor'},{to:'victor'}] }, results );
+  rpc.auditNotes.listFor({ $or: [{from:'victor'},{to:'victor'}] } ).then( results );
 }
 </script>
 </head>

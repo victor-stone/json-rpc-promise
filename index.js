@@ -1,24 +1,21 @@
 /* eslint no-console:"off" */
 /* eslint no-magic-numbers:"off" */
-var app     = require('./app');
-var lib     = require('./lib');
+const express    = require('express');
+const bodyParser = require ('body-parser');
+const cors       = require('cors');
 
-var JsonRpc = lib.rpcserver;
+const myapp  = require('./app');
+const meta   = require('./app/meta');
+const lib    = require('./lib');
 
-require('mongodb');
+const rpc  = lib.rpc;
+const db   = lib.database;
 
-var server = new JsonRpc();
-
-for( var moduleName in app ) {
-  lib.registerClass(server,moduleName,app[moduleName]);
-}
-
-server.register( 'rpc.listMethods', (params,reply) => lib.listMethods(reply,server) );
-
-console.log(server.methods);
-
-var port = process.env.PORT || 3000;
-
-server.listen(port, '', () => {
-  console.log('Server listening on port ' + port);
+db.init( meta.dbName, meta.collections ).then( () => {
+  const app  = express();
+  app.use(cors({preflightContinue:true}));
+  app.use(bodyParser.json());
+  app.use(rpc({modules:myapp}));
+  const port = process.env.PORT || 3000;
+  app.listen( port, () => console.log('Server listening on port ' + port) );
 });
