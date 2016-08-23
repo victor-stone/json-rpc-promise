@@ -1,3 +1,4 @@
 .gitingore
 node_modules
 data
+browser-test/logs
