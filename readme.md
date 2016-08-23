@@ -8,7 +8,7 @@ The methods in the API all return promises.
 Assuming you have an API you want to expose that looks something like:
 
 ````javascript
-  var myapis = {
+  var api = {
     calc: {
       sum(x,y) {
         return Promise.resolve(x + y);
@@ -30,7 +30,7 @@ Usage:
 
 ````javascript
   var epxress = require('express');
-  var rpc     = require('json-rpc-middleware');
+  var rpc     = require('json-rpc-promise');
 
   var app = express();
   app.use( rpc({ modules:api }));
@@ -40,8 +40,8 @@ You can create multiple instances for versioning:
 
 
 ````javascript
-  app.use( '/api/v1', rpc({ modules: myapp_v1 }));
-  app.use( '/api/v2', rpc({ modules: myapp_v2 }));
+  app.use( '/api/v1', rpc({ modules: app_v1 }));
+  app.use( '/api/v2', rpc({ modules: app_v2 }));
 ````
 Discovery:
 
@@ -57,7 +57,7 @@ If addition to your methods, this library will expose a method called `rpc.listM
 
 Client:
 
-If you are a client you could use the code in `./browser-test/client.js` for modern browsers and './dist/json-rpc-client.js' for backward compat. (Node that you'll still need a promise polyfill like [this one](https://github.com/stefanpenner/es6-promise)).
+Clients can use the code in `./browser-test/client.js` for modern browsers and './dist/json-rpc-client.js' for backward compat. (Note that you'll still need a promise polyfill like [this one](https://github.com/stefanpenner/es6-promise)).
 
 `.getMethods()` calls `rpc.listMethods` and exposes the modules and methods on a native JS object that return promises.
 
@@ -77,7 +77,7 @@ If you are a client you could use the code in `./browser-test/client.js` for mod
 
 Es 6 Classes
 
-Meanwhile, back on the server, your API can  be expressed as ES6 classes but you must pass in instances:
+Meanwhile, back on the server, your API can  be expressed as ES6 classes as long as you pass in instances:
 
 ````javascript
   class Calc {
