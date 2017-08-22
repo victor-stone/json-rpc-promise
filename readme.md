@@ -52,7 +52,7 @@ If addition to your methods, this library will expose a method called `rpc.listM
     calc: ['sum','multiply'],
     users: ['find']
   }
-```
+````
 
 
 Client:
