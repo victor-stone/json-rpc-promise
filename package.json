@@ -1,5 +1,5 @@
 {
-  "name": "json_server",
+  "name": "json-rpc-promise",
   "version": "1.0.0",
   "description": "a json-rpc server",
   "main": "lib/index.js",
