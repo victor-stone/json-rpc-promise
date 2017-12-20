@@ -73,8 +73,8 @@ class Middleware
 
         const request = req.body;
 
-        const method  = this.methods[request.method];
-
+        const method  = this.methods[request.method || req.path.substr(1)] ;
+        
         if( method ) {
 
           method.apply( null, request.params)

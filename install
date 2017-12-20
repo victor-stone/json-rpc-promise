@@ -1,1 +1,0 @@
-babel -o ./dist/json-rpc-client.js browser-test/client.js

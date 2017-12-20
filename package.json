@@ -2,23 +2,13 @@
   "name": "json-rpc-promise",
   "version": "1.0.0",
   "description": "a json-rpc server",
-  "main": "lib/index.js",
-  "scripts": {
-    "start": "node server-test",
-    "build": "./install"
-  },
+  "main": "index.js",
   "author": "victor stone",
   "license": "MIT",
   "repository": {
     "type": "git",
     "url": "https://github.com/victor-stone/json-rpc-promise"
   },
-  "devDependencies": {
-    "body-parser": "^1.15.2",
-    "cors": "^2.7.1",
-    "express": "^4.14.0",
-    "babel-plugin-transform-object-rest-spread": "^6.8.0",
-    "babel-preset-es2015": "^6.13.2",
-    "mongo-wrap": "git+https://github.com/victor-stone/mongo-wrap.git"
-  }
+  "devDependencies": {},
+  "dependencies": {}
 }
