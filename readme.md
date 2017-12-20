@@ -3,7 +3,7 @@
 
 N.B. this is not a full implementation of the 2.0 spec. As of this writing it is missing notifications and batching.
 
-The methods in the API all return promises.
+The methods in your API need to all return promises.
 
 ## Example - Server
 ````javascript
@@ -40,7 +40,7 @@ app.use( cors({ preflightContinue:true }) );
 
 app.use( '/api', bodyParser.json() );
 
-app.use( '/api', rpc({ modules:api }) );
+app.use( '/api', rpc({ modules:api }) ); // <<== REGISTER API HERE
 
 const DEFAULT_PORT = 3000;
 
