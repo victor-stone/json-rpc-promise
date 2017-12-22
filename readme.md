@@ -7,11 +7,39 @@ The methods in your API need to all return promises.
 
 ## Example - Server
 ````javascript
+...
+class Calc {
+  sum(x,y) {
+    return Promise.resolve(x + y);
+  }
+  multiply(x,y) {
+    return Promise.resolve(x * y);
+  }
+}
+
+const modules = { calc: new Calc() };
+
+app.use( '/api', rpc( { modules } );
+
+````
+
+## Example Client 
+````javascript
+
+  rpc.calc.sum( 3, 4 ).then( answer => console.log('Answer: ', answer) );
+
+````
+
+## Example full - Server
+````javascript
 const express    = require('express');
 const bodyParser = require('body-parser');
 const cors       = require('cors');
 
 var app = exppress();
+
+app.use( cors({ preflightContinue:true }) );
+app.use( '/api', bodyParser.json() );
 
 class Calc {
   sum(x,y) {
@@ -36,10 +64,6 @@ const api = {
   users: new Users(someMongoClientThingy)
 };
 
-app.use( cors({ preflightContinue:true }) );
-
-app.use( '/api', bodyParser.json() );
-
 app.use( '/api', rpc({ modules:api }) ); // <<== REGISTER API HERE
 
 const DEFAULT_PORT = 3000;
@@ -50,7 +74,7 @@ app.listen( port, () => console.log('Server listening on port ' + port) );
 
 ````
 
-## Example Client
+## Example - full Client
 
 ````javascript
 

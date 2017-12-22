@@ -1,17 +1,14 @@
-'use strict';
+const { keys, getOwnPropertyNames, getPrototypeOf } = Object;
+
+const methodFilter = cls => m => (cls[m] instanceof Function) && cls[m] !== cls && m !== 'constructor';
 
 class Middleware 
 {
-  constructor( opts ) {
-    opts = opts || {};
+  constructor( {modules,cls} ) {
     this.methods = {};
-    this.register( 'rpc.listMethods', () => new Promise( resolve => resolve(this.listMethods()) ));
-    if( opts.modules ) {
-      this.registerModules(opts.modules);
-    }
-    if( opts.cls ) {
-      this.registerClass(opts.cls);
-    }
+    this.register( 'rpc.listMethods', () => Promise.resolve(this.listMethods()) );
+    modules && this.registerModules(modules);
+    cls && this.registerClass(cls);
     console.log(this.methods);
   }
 
@@ -25,13 +22,11 @@ class Middleware
 
     let bindTo = null;
     
-    let keys = cls.constructor === Object
-                ? Object.keys(cls)
-                : (bindTo = cls, Object
-                                 .getOwnPropertyNames(Object.getPrototypeOf(cls))
-                                 .filter( m => (cls[m] instanceof Function) && cls[m] !== cls && m !== 'constructor' ));
+    let methods = cls.constructor === Object
+                ? keys(cls)
+                : (bindTo = cls, getOwnPropertyNames( getPrototypeOf(cls) ) .filter( methodFilter(cls) ) );
 
-    for( var key of keys ) {
+    for( var key of methods ) {
       let meth = cls[key];
       !!bindTo && (meth = meth.bind(bindTo));
       this.register( name + '.' + key, meth );
@@ -45,9 +40,7 @@ class Middleware
   listMethods() {
     const result = {};
     for( const key in this.methods ) {
-      const parts = key.split('.');
-      const cls = parts[0];
-      const meth = parts[1];
+      const [ cls, meth ] = key.split('.');
       if( cls === 'rpc' ) {
         continue;
       }
