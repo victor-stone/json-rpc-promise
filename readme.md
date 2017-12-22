@@ -1,6 +1,8 @@
 
 # json-rpc-promise server middleware
 
+Because not **every** remote API has to be RESTful. 
+
 N.B. this is not a full implementation of the 2.0 spec. As of this writing it is missing notifications and batching.
 
 The methods in your API need to all return promises.
