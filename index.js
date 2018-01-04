@@ -78,17 +78,17 @@ class Middleware
 
         } else {
 
-          console.warn(req.connection.remoteAddress + " invalid requested method " + request.method);
-          this.sendError(res, request.id, "method " + request.method + " not found");
+          console.warn(req.connection.remoteAddress + ' invalid requested method ' + request.method);
+          this.sendError(res, request.id, 'method ' + request.method + ' not found');
 
         }
 
       } catch (error) {
 
-        console.warn(req.connection.remoteAddress, error);
+        console.warn('JSON-SERVER caught exception', req.connection.remoteAddress, error);
         res.status(500).json({
-          error: "invalid request",
-          stack: error
+          error: error.message,
+          stack: error.stack
         });
 
       }
